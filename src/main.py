@@ -69,7 +69,7 @@ while True:
         if leitura != btn_stable_state:
             btn_stable_state = leitura
 
-            if btn_stable_state == 0:
+            if btn_stable_state == 1:
                 total = 0
                 blocked = False
                 blocked_since = None
