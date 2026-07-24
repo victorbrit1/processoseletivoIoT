@@ -190,11 +190,11 @@ O desenvolvimento acontece principalmente nos arquivos abaixo:
   - Tipo de placa
   - Framework
   - Dependências adicionais
- 
+
 #### Rodando localmente
 
 Para executar o seu projeto locamente, é necesário preparar a imagem docker local, e após isso
-utiliza-la para gerar o arquivo que conterá o seu código para o projeto, para isso, execute os 
+utiliza-la para gerar o arquivo que conterá o seu código para o projeto, para isso, execute os
 seguintes códigos:
 
 1. Prepara a imagem docker (Necessário rodar apenas 1 vez)
@@ -274,73 +274,87 @@ Preencha todas as seções abaixo de forma **clara, objetiva e técnica**.
 
 ### Identificação do Candidato
 
-- **Nome completo:**
-- **GitHub:**
+- Victor Conceição de Brito
+- https://github.com/victorbrit1
 
 ---
 
 ## Visão Geral da Solução
 
-Descreva, em poucas palavras:
+O projeto consiste em um sistema embarcado desenvolvido em MicroPython para simular o monitoramento de uma linha de produção utilizando um ESP32. O sistema realiza a contagem automática de peças por meio de um sensor fotoresistor (LDR), identifica situações de micro-parada quando o sensor permanece bloqueado por um período prolongado e permite reiniciar o turno de produção utilizando um botão.
 
-- Qual é o objetivo do seu projeto
-- O que o sistema embarcado simulado faz
-- Como o usuário interage com ele (se aplicável)
+A interação ocorre através do monitor serial, que informa os eventos detectados, e do botão físico, utilizado para reinicializar os contadores do sistema.
 
 ---
 
 ## Arquitetura do Sistema Embarcado
 
-Explique a arquitetura lógica do seu projeto, abordando:
+O firmware foi implementado em um único arquivo (main.py) utilizando um laço principal (while True) responsável por executar continuamente todas as tarefas do sistema.
 
-- Fluxo principal do programa (`main.py`)
-- Estrutura de estados, loops ou temporizações
-- Como os componentes interagem entre si
+Durante cada ciclo do programa são realizadas:
 
-Se desejar, utilize tópicos ou um pequeno diagrama em texto.
+leitura do sensor LDR;
+identificação dos estados de linha livre e linha bloqueada;
+contagem das peças através da transição entre esses estados;
+monitoramento do tempo de bloqueio para detectar micro-paradas;
+leitura do botão utilizando debounce por software;
+atualização das mensagens enviadas ao monitor serial.
 
----
+Para evitar contagens incorretas, foram utilizados dois limiares de leitura do sensor, criando uma histerese entre os estados de bloqueio e linha livre.
 
 ## Componentes Utilizados na Simulação
 
-Liste os principais componentes definidos no `diagram.json`, por exemplo:
+ESP32 Simulation:
+Responsável pela execução do firmware e leitura dos dispositivos conectados.
 
-- Tipo de placa utilizada
-- LEDs, botões, sensores, atuadores, etc.
-- Função de cada componente no sistema
+Wokwi-photoresistor-sensor(LDR):
+Utilizado para detectar a passagem das peças através da variação da luminosidade incidente.
 
----
+Wokwi-pushbutton:
+Responsável por reiniciar a contagem do turno.
+
+Monitor Serial
+
+Utilizado para apresentar todas as mensagens exigidas pela especificação do projeto.
 
 ## Decisões Técnicas Relevantes
 
-Explique brevemente decisões importantes tomadas durante o desenvolvimento, como:
+Durante o desenvolvimento foram adotadas algumas decisões para garantir estabilidade durante a simulação e compatibilidade com os testes automatizados.
 
-- Organização do código
-- Uso de funções, estados ou constantes
-- Estratégias para temporização ou controle lógico
+.Utilização de constantes para configuração dos limiares do sensor e tempos de controle.
 
----
+.Implementação de debounce por software utilizando time.ticks_ms().
+
+.Utilização de temporização não bloqueante para detectar micro-paradas sem interromper a execução do programa.
+
+.Implementação da variável microparada_reportada para impedir que o mesmo alerta seja exibido repetidamente enquanto o sensor permanecer bloqueado.
+
+.Utilização do resistor interno de pull-up do ESP32 (Pin.PULL_UP), dispensando componentes externos para o botão.
+
+.Ajuste dos limiares do sensor após testes realizados no simulador Wokwi para obter uma detecção estável da passagem das peças.
 
 ## Resultados Obtidos
 
-Descreva o comportamento final do sistema:
+Após os testes realizados na simulação, o sistema apresentou o comportamento esperado.
 
-- O que funciona corretamente
-- Quais requisitos foram atendidos
-- Resultado observado na simulação do Wokwi
+.Inicialização correta do firmware.
 
----
+.Contagem das peças apenas após a passagem completa pelo sensor.
+
+.Detecção automática de micro-paradas após cinco segundos de bloqueio contínuo.
+
+.Funcionamento correto do botão de reset com tratamento de debounce.
+
+.Exibição correta das mensagens exigidas pela especificação do desafio.
+
+Durante a simulação foi possível validar o funcionamento utilizando os três cenários previstos para o Wokwi CI: contagem de peças, detecção de micro-parada e reset de turno.
 
 ## Comentários Adicionais (Opcional)
 
-Utilize este espaço para comentar, se desejar:
+Durante o desenvolvimento foi necessário realizar testes para identificar os valores de leitura do sensor fotoresistor no ambiente de simulação, permitindo definir limiares adequados para diferenciar os estados de linha livre e linha bloqueada.
 
-- Dificuldades encontradas
-- Limitações da solução
-- Melhorias que você faria com mais tempo
-- Principais aprendizados durante o desafio
-
----
+Outra etapa importante foi validar a ligação elétrica do botão utilizando o resistor interno de pull-up do ESP32, garantindo compatibilidade entre o circuito e a lógica implementada no firmware.
+Como melhoria futura, seria interessante adicionar um LED para fornecer um feedback visual ao operador, indicando eventos como micro-paradas ou o reset do turno. Isso tornaria a interação com o sistema mais intuitiva e facilitaria o monitoramento da linha de produção.
 
 > Este relatório faz parte da avaliação técnica.  
 > Clareza, objetividade e organização são tão importantes quanto o funcionamento do código.
