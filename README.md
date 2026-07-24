@@ -72,7 +72,7 @@ Após os testes realizados na simulação, o sistema apresentou o comportamento 
 - Exibição correta das mensagens exigidas pela especificação do desafio.
 - Aprovação nos três cenários automatizados do Wokwi CI: contagem de peças, detecção de micro-parada e reset de turno.
 
-## Comentários Adicionais (Opcional)
+## Comentários Adicionais (Opcional).
 
 Durante o desenvolvimento foi necessário realizar testes para identificar os valores de leitura do sensor fotoresistor no ambiente de simulação, permitindo definir limiares adequados para diferenciar os estados de linha livre e linha bloqueada.
 
